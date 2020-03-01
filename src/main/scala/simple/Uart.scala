@@ -100,3 +100,8 @@ class Counter(size: Int) extends Module {
   }
   io.out := r_cnt
 }
+
+object UartMain extends App {
+  println("Generating the Uart hardware")
+  chisel3.Driver.execute(Array("--target-dir", "generated"), () => new Uart())
+}
