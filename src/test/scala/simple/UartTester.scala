@@ -12,7 +12,7 @@ import chisel3.iotesters.PeekPokeTester
  * Test the counter by printing out the value at each clock cycle.
  */
 class UartTester(dut: Uart) extends PeekPokeTester(dut) {
-  val TIME_BAUD = 100*1000*1000/9600
+  val TIME_BAUD = 125*1000*1000/9600
   def send_uart(TDATA:Int=0x00){
     poke(dut.io.RD, 1.U)
     step(TIME_BAUD)

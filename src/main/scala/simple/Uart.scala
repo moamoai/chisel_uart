@@ -15,12 +15,12 @@ class Uart(size: Int=2) extends Module {
     val TD     = Output(UInt(1.W))
     val RD     = Input(UInt(1.W))
     val GPIO   = Output(UInt(8.W))
-    val FREQ   = Input(UInt(16.W))
-    val SW_IN  = Input(UInt(4.W))
-    val SW_OUT = Output(UInt(4.W))
+//    val FREQ   = Input(UInt(16.W))
+    val SW_IN  = Input(UInt(1.W))
+    val SW_OUT = Output(UInt(1.W))
   })
   var RD = io.RD
-  var TIME_BAUD     = 10416.U(16.W)
+  var TIME_BAUD     = 13020.U(16.W)
   var TIME_START    = (TIME_BAUD + (TIME_BAUD>>1))
   var TIME_UART_MAX = 10.U
   val eIdle :: eStart :: eReceiving :: Nil = Enum(3)
@@ -80,7 +80,7 @@ class Uart(size: Int=2) extends Module {
   }
   io.TD     := 1.U
   io.GPIO   := r_GPIO
-  io.SW_OUT := 0.U
+  io.SW_OUT := io.SW_IN
 }
 
 class Counter(size: Int) extends Module {

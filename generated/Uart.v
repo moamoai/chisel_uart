@@ -119,14 +119,13 @@ end // initial
   end
 endmodule
 module Uart(
-  input         clock,
-  input         reset,
-  output        io_TD,
-  input         io_RD,
-  output [7:0]  io_GPIO,
-  input  [15:0] io_FREQ,
-  input  [3:0]  io_SW_IN,
-  output [3:0]  io_SW_OUT
+  input        clock,
+  input        reset,
+  output       io_TD,
+  input        io_RD,
+  output [7:0] io_GPIO,
+  input        io_SW_IN,
+  output       io_SW_OUT
 );
   wire  i_counter_clock; // @[Uart.scala 35:29]
   wire  i_counter_reset; // @[Uart.scala 35:29]
@@ -182,10 +181,10 @@ module Uart(
   );
   assign _T_2 = state == 2'h1; // @[Uart.scala 36:27]
   assign counter_out = i_counter_io_out; // @[Uart.scala 34:25 Uart.scala 38:15]
-  assign _T_3 = counter_out == 16'h3d08; // @[Uart.scala 36:58]
+  assign _T_3 = counter_out == 16'h4c4a; // @[Uart.scala 36:58]
   assign _T_4 = _T_2 & _T_3; // @[Uart.scala 36:42]
   assign _T_5 = state == 2'h2; // @[Uart.scala 37:27]
-  assign _T_6 = counter_out == 16'h28b0; // @[Uart.scala 37:58]
+  assign _T_6 = counter_out == 16'h32dc; // @[Uart.scala 37:58]
   assign _T_7 = _T_5 & _T_6; // @[Uart.scala 37:42]
   assign incr_uart_cnt = _T_4 | _T_7; // @[Uart.scala 36:75]
   assign _T_9 = state == 2'h0; // @[Uart.scala 39:46]
@@ -204,7 +203,7 @@ module Uart(
   assign _T_24 = incr_uart_cnt & _T_23; // @[Uart.scala 78:30]
   assign io_TD = 1'h1; // @[Uart.scala 81:13]
   assign io_GPIO = r_GPIO; // @[Uart.scala 82:13]
-  assign io_SW_OUT = 4'h0; // @[Uart.scala 83:13]
+  assign io_SW_OUT = io_SW_IN; // @[Uart.scala 83:13]
   assign i_counter_clock = clock;
   assign i_counter_reset = reset;
   assign i_counter_io_en = state != 2'h0; // @[Uart.scala 40:20]
