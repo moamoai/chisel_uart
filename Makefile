@@ -13,11 +13,12 @@ uart:
 
 
 uart-test:
-	$(SBT) "test:runMain simple.CounterTester"
+	# $(SBT) "test:runMain simple.UartTester --backend-name verilator"
+	$(SBT) "test:runMain simple.UartTester --backend-name verilator"
 
 GTKWAVE = /Applications/gtkwave.app/Contents/Resources/bin/gtkwave
 view:
-	$(GTKWAVE) ./test_run_dir/simple.DividerTester2058623782/.gtkw
+	$(GTKWAVE) ./test_run_dir/Uart.gtkw
 
 # clean everything (including IntelliJ project settings)
 
