@@ -26,6 +26,9 @@ class Uart(size: Int=2) extends Module {
   val eIdle :: eStart :: eReceiving :: Nil = Enum(3)
   val state = RegInit(eIdle)
 
+  val txIdle :: txStart :: txTransmitting :: txPGEN :: txStop :: Nil = Enum(5)
+  val tx_state = RegInit(txIdle)
+
   val incr_uart_cnt = Wire(UInt(1.W))
   val clr_uart_cnt  = Wire(UInt(1.W))
   clr_uart_cnt := 0.U
@@ -75,10 +78,73 @@ class Uart(size: Int=2) extends Module {
     r_recdata := 0.U
   }
 
-  when((incr_uart_cnt===1.U) && (uart_cnt_out === 0x8.U)){
-    r_GPIO    := r_recdata
+  val received = Wire(UInt(1.W))
+  val r_txdata = RegInit(0.U(8.W))
+  val r_TD     = RegInit(1.U(1.W))
+  received := (incr_uart_cnt===1.U) && (uart_cnt_out === 0x8.U)
+  when(received===1.U){
+    r_GPIO   := r_recdata
   }
-  io.TD     := 1.U
+
+  val tx_cnt    = Wire(UInt(16.W))
+  val i_tx_cnt  = Module(new Counter(16))
+  val incr_txd_cnt = Wire(UInt(1.W))
+  tx_cnt          := i_tx_cnt.io.out
+  i_tx_cnt.io.rst := incr_txd_cnt | (tx_state === txIdle)
+  i_tx_cnt.io.en  := (tx_state != txIdle)
+
+  val txd_cnt      = Wire(UInt(8.W))
+  val i_txd_cnt    = Module(new Counter(8))
+  val clr_txd_cnt  = Wire(UInt(1.W))
+  clr_txd_cnt      := 0.U
+  // incr_txd_cnt     := (tx_state===txTransmitting) && (tx_cnt === TIME_BAUD)
+  incr_txd_cnt     := (tx_cnt === TIME_BAUD)
+  i_txd_cnt.io.rst := clr_txd_cnt
+  i_txd_cnt.io.en  := incr_txd_cnt
+  txd_cnt          := i_txd_cnt.io.out
+
+  // Tx State machine
+  switch(tx_state){
+    is (txIdle){
+      r_TD := 1.U
+      when(received===1.U){
+        r_txdata := r_recdata
+        tx_state := txStart
+      }
+    }
+    is (txStart){
+      r_TD := 0.U
+      when(tx_cnt === TIME_BAUD){
+        tx_state := txTransmitting
+      }
+    }
+    is (txTransmitting){
+      r_TD := r_txdata(0)
+      when(incr_txd_cnt===1.U){
+        r_txdata := r_txdata(7,1)
+      }
+      when((txd_cnt === 8.U)&&(incr_txd_cnt===1.U)){ // Last data
+        tx_state := txPGEN
+        clr_txd_cnt := 1.U
+      }
+    }
+    is (txPGEN){
+      r_TD := 0.U // tmp. need to be parity
+      when(tx_cnt === TIME_BAUD){
+        tx_state := txStop
+        clr_txd_cnt := 1.U
+      }
+    }
+    is (txStop){
+      r_TD := 1.U
+      when((txd_cnt === 1.U)&&(incr_txd_cnt===1.U)){ // Last data
+        tx_state := txIdle
+        clr_txd_cnt := 1.U
+      }
+    }
+  }
+
+  io.TD     := r_TD
   io.GPIO   := r_GPIO
   io.SW_OUT := io.SW_IN
 }

@@ -25,20 +25,45 @@ class UartTester(dut: Uart) extends PeekPokeTester(dut) {
       poke(dut.io.RD, td) // Data bit
       step(TIME_BAUD)
     }
-    poke(dut.io.RD, 0.U) // Parity bit
-    step(TIME_BAUD)
-    poke(dut.io.RD, 1.U) // Stop bit
-    step(TIME_BAUD)
-    poke(dut.io.RD, 1.U) // Stop bit
-    step(TIME_BAUD)
+    poke(dut.io.RD, 1.U) //
+
+    // poke(dut.io.RD, 0.U) // Parity bit
+    // step(TIME_BAUD)
+    // poke(dut.io.RD, 1.U) // Stop bit
+    // step(TIME_BAUD)
+    // poke(dut.io.RD, 1.U) // Stop bit
+    // step(TIME_BAUD)
+  }
+
+  def receive_data(){
+    var rdata = BigInt(0)
+    var td    = peek(dut.io.TD)
+    while(td == 1){   // Start wait
+      step(10) // tmp
+      td = peek(dut.io.TD)
+    }
+    step(TIME_BAUD) // Stop
+    step(TIME_BAUD/2) // D0 1/2
+    for (i <- 0 until 8) {
+      rdata = rdata + (peek(dut.io.TD)<<i)
+      step(TIME_BAUD)
+    }
+    step(TIME_BAUD) // Parity
+    step(TIME_BAUD) // STOP
+    step(TIME_BAUD) // STOP
+    println(f"# Received Data[$rdata%02x]")
   }
   var TEST_DATA = 0x89
   send_uart(TEST_DATA)
+  receive_data()
+
   if(peek(dut.io.GPIO)!=TEST_DATA){
     println("#[NG] Error TEST_DATA:" + TEST_DATA.toString)
   }
+
   TEST_DATA = 0x5A
   send_uart(TEST_DATA)
+  receive_data()
   if(peek(dut.io.GPIO)!=TEST_DATA){
     println("#[NG] Error TEST_DATA:" + TEST_DATA.toString)
   }

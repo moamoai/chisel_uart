@@ -9,3 +9,5 @@ vivado/project_1/*.jou
 vivado/project_1/project_1.runs/*
 vivado/project_1/project_1.cache/*
 vivado/project_1/project_1.hw/*
+vivado/project_1/*.str
+*.dat
