@@ -21,7 +21,7 @@ class UartTester(dut: Uart) extends PeekPokeTester(dut) {
   // val TIME_BAUD = 125*1000*1000/9600
   // val TIME_BAUD = 125*1000*1000/115200
   val TIME_BAUD = OBJ_TEST.TIME_BAUD
-  def send_uart(TDATA:Int=0x00){
+  def send_uart(TDATA:Int=0x00, SKIP:Int=0x00){
     poke(dut.io.RD, 1.U)
     step(TIME_BAUD)
     poke(dut.io.RD, 1.U)
@@ -35,18 +35,21 @@ class UartTester(dut: Uart) extends PeekPokeTester(dut) {
     }
     poke(dut.io.RD, 1.U) //
 
-    poke(dut.io.RD, 0.U) // Parity bit
-    step(TIME_BAUD)
-    poke(dut.io.RD, 1.U) // Stop bit
-    step(TIME_BAUD)
-    poke(dut.io.RD, 1.U) // Stop bit
-    step(TIME_BAUD)
+    if(SKIP!=1){
+      poke(dut.io.RD, 0.U) // Parity bit
+      step(TIME_BAUD)
+      poke(dut.io.RD, 1.U) // Stop bit
+      step(TIME_BAUD)
+      poke(dut.io.RD, 1.U) // Stop bit
+      step(TIME_BAUD)
+    }
   }
 
   def receive_data() : BigInt = {
     var rdata = BigInt(0)
     var td    = peek(dut.io.TD)
     while(td == 1){   // Start wait
+      step(1)
       td = peek(dut.io.TD)
     }
     step(TIME_BAUD) // Stop
@@ -61,15 +64,26 @@ class UartTester(dut: Uart) extends PeekPokeTester(dut) {
     println(f"# Received Data[$rdata%02x]")
     return rdata
   }
+  // Loop back test
   var L_CHAR    = 0x6C // l(0x6C)
   var TEST_DATA = 0x5A
   send_uart(L_CHAR)
   send_uart(TEST_DATA)
-  send_uart(0x0)
+  send_uart(0x0, 1)
   var rdata = receive_data()
-
   if(rdata !=TEST_DATA){
     println("#[NG] Error TEST_DATA:" + TEST_DATA.toString)
+  }
+  // Switch Test
+  var S_CHAR    = 0x73
+  var SW_IN = 5
+  poke(dut.io.SW_IN, SW_IN.U)
+  send_uart(S_CHAR)
+  send_uart(0x0)
+  send_uart(0x0, 1)
+  rdata = receive_data()
+  if(rdata !=SW_IN){
+    println("#[NG] Error rdata=" + rdata.toString)
   }
 
 //  TEST_DATA = 0x5A
