@@ -10,7 +10,7 @@ import chisel3._
 import chisel3.util._
 import chisel3.util.Enum
 
-class Uart(size: Int=2) extends Module {
+class Uart(TIME_BAUD:UInt = 1085.U(16.W)) extends Module {
   val io = IO(new Bundle {
     val TD     = Output(UInt(1.W))
     val RD     = Input(UInt(1.W))
@@ -19,7 +19,7 @@ class Uart(size: Int=2) extends Module {
     val SW_IN  = Input(UInt(1.W))
     val SW_OUT = Output(UInt(1.W))
   })
-  var TIME_BAUD = 1085.U(16.W) // 115200 bps
+//  var TIME_BAUD = 1085.U(16.W) // 115200 bps
   // var TIME_BAUD = 13020.U(16.W) // 9600 bps
 
   val i_uart_rx  = Module(new UartRX(TIME_BAUD))

@@ -11,9 +11,16 @@ import chisel3.iotesters.PeekPokeTester
 /**
  * Test the counter by printing out the value at each clock cycle.
  */
+
+
+object OBJ_TEST {
+  val TIME_BAUD  = 16
+}
+
 class UartTester(dut: Uart) extends PeekPokeTester(dut) {
   // val TIME_BAUD = 125*1000*1000/9600
-  val TIME_BAUD = 125*1000*1000/115200
+  // val TIME_BAUD = 125*1000*1000/115200
+  val TIME_BAUD = OBJ_TEST.TIME_BAUD
   def send_uart(TDATA:Int=0x00){
     poke(dut.io.RD, 1.U)
     step(TIME_BAUD)
@@ -40,7 +47,6 @@ class UartTester(dut: Uart) extends PeekPokeTester(dut) {
     var rdata = BigInt(0)
     var td    = peek(dut.io.TD)
     while(td == 1){   // Start wait
-      step(10) // tmp
       td = peek(dut.io.TD)
     }
     step(TIME_BAUD) // Stop
@@ -99,7 +105,7 @@ object UartTester extends App {
 
   iotesters.Driver.execute(Array[String]("--generate-vcd-output", "on",
                         "--fint-write-vcd", "--wave-form-file-name", "test_run_dir/Uart.vcd"),
-                                          () => new Uart(2)) {
+                                          () => new Uart(OBJ_TEST.TIME_BAUD.U)) {
     c => new UartTester(c)
   }
 }
