@@ -11,7 +11,7 @@ import chisel3.iotesters.PeekPokeTester
 /**
  * Test the counter by printing out the value at each clock cycle.
  */
-class UartTester(dut: Uart) extends PeekPokeTester(dut) {
+class Uart_LBTester(dut: Uart_LB) extends PeekPokeTester(dut) {
   // val TIME_BAUD = 125*1000*1000/9600
   val TIME_BAUD = 125*1000*1000/115200
   def send_uart(TDATA:Int=0x00){
@@ -28,15 +28,15 @@ class UartTester(dut: Uart) extends PeekPokeTester(dut) {
     }
     poke(dut.io.RD, 1.U) //
 
-    poke(dut.io.RD, 0.U) // Parity bit
-    step(TIME_BAUD)
-    poke(dut.io.RD, 1.U) // Stop bit
-    step(TIME_BAUD)
-    poke(dut.io.RD, 1.U) // Stop bit
-    step(TIME_BAUD)
+    // poke(dut.io.RD, 0.U) // Parity bit
+    // step(TIME_BAUD)
+    // poke(dut.io.RD, 1.U) // Stop bit
+    // step(TIME_BAUD)
+    // poke(dut.io.RD, 1.U) // Stop bit
+    // step(TIME_BAUD)
   }
 
-  def receive_data() : BigInt = {
+  def receive_data(){
     var rdata = BigInt(0)
     var td    = peek(dut.io.TD)
     while(td == 1){   // Start wait
@@ -53,25 +53,21 @@ class UartTester(dut: Uart) extends PeekPokeTester(dut) {
     step(TIME_BAUD) // STOP
     step(TIME_BAUD) // STOP
     println(f"# Received Data[$rdata%02x]")
-    return rdata
   }
-  var L_CHAR    = 0x6C // l(0x6C)
-  var TEST_DATA = 0x5A
-  send_uart(L_CHAR)
+  var TEST_DATA = 0x89
   send_uart(TEST_DATA)
-  send_uart(0x0)
-  var rdata = receive_data()
+  receive_data()
 
-  if(rdata !=TEST_DATA){
+  if(peek(dut.io.GPIO)!=TEST_DATA){
     println("#[NG] Error TEST_DATA:" + TEST_DATA.toString)
   }
 
-//  TEST_DATA = 0x5A
-//  send_uart(TEST_DATA)
-//  receive_data()
-//  if(peek(dut.io.GPIO)!=TEST_DATA){
-//    println("#[NG] Error TEST_DATA:" + TEST_DATA.toString)
-//  }
+  TEST_DATA = 0x5A
+  send_uart(TEST_DATA)
+  receive_data()
+  if(peek(dut.io.GPIO)!=TEST_DATA){
+    println("#[NG] Error TEST_DATA:" + TEST_DATA.toString)
+  }
 
 //  for (i <- 0 until 5) {
 //    println(i.toString + ": " + peek(c.io.out).toString())
@@ -89,17 +85,17 @@ class UartTester(dut: Uart) extends PeekPokeTester(dut) {
 //   }
 // }
 
-object UartTester extends App {
+object Uart_LBTester extends App {
   // Disable this until we fix isCommandAvailable to swallow stderr along with stdout
   private val backendNames = if(firrtl.FileUtils.isCommandAvailable(Seq("verilator", "--version"))) {
     Array("firrtl", "verilator")
   }
 //  val param = Array("--target-dir", "generated", "--generate-vcd-output", "on")
-//                    "--wave-form-file-name", "test_run_dir/Uart.vcd")
+//                    "--wave-form-file-name", "test_run_dir/Uart_LB.vcd")
 
   iotesters.Driver.execute(Array[String]("--generate-vcd-output", "on",
-                        "--fint-write-vcd", "--wave-form-file-name", "test_run_dir/Uart.vcd"),
-                                          () => new Uart(2)) {
-    c => new UartTester(c)
+                        "--fint-write-vcd", "--wave-form-file-name", "test_run_dir/Uart_LB.vcd"),
+                                          () => new Uart_LB(2)) {
+    c => new Uart_LBTester(c)
   }
 }

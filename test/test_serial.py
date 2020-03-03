@@ -8,7 +8,8 @@
 
 import serial
 import time
-ser = serial.Serial('/dev/tty.usbserial-14310', 9600, timeout=1.0)
+# ser = serial.Serial('/dev/tty.usbserial-14310', 9600, timeout=1.0)
+ser = serial.Serial('/dev/tty.usbserial-14310', 115200, timeout=0.1)
 # ser.write(b'2')
 # str = ser.read(1)
 # print(str)
@@ -19,7 +20,9 @@ result = 1
 for i in range(256):
   # txd = bytes(i)
   txd = i.to_bytes(1, 'big')
-  ser.write(txd)
+  ser.write(b'l') # loopback cmd
+  ser.write(txd)  # arg0
+  ser.write(b'0')  # none
   rxd = ser.read(1)
   rdata = int.from_bytes(rxd, 'big')
   if(i != rdata):
