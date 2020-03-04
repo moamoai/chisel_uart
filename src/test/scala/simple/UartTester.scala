@@ -64,6 +64,7 @@ class UartTester(dut: Uart) extends PeekPokeTester(dut) {
     println(f"# Received Data[$rdata%02x]")
     return rdata
   }
+
   // Loop back test
   var L_CHAR    = 0x6C // l(0x6C)
   var TEST_DATA = 0x5A
@@ -83,6 +84,22 @@ class UartTester(dut: Uart) extends PeekPokeTester(dut) {
   send_uart(0x0, 1)
   rdata = receive_data()
   if(rdata !=SW_IN){
+    println("#[NG] Error rdata=" + rdata.toString)
+  }
+
+  // Memory Write/Read
+  var W_CHAR    = 0x77
+  var M_CHAR    = 0x6D
+  var ADDR  = 0x04
+  var WDATA = 0x5A
+  send_uart(W_CHAR)
+  send_uart(ADDR) 
+  send_uart(WDATA)
+  send_uart(M_CHAR)
+  send_uart(ADDR)
+  send_uart(0x0, 1)
+  rdata = receive_data()
+  if(rdata !=WDATA){
     println("#[NG] Error rdata=" + rdata.toString)
   }
 
