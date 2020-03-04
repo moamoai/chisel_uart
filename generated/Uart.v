@@ -332,6 +332,242 @@ end // initial
     end
   end
 endmodule
+module Memory(
+  input        clock,
+  input        io_we,
+  input  [7:0] io_wdata,
+  input  [7:0] io_addr,
+  output [7:0] io_rdata
+);
+  reg [7:0] my_mem [0:255]; // @[Memory.scala 34:19]
+  reg [31:0] _RAND_0;
+  wire [7:0] my_mem__T_2_data; // @[Memory.scala 34:19]
+  wire [7:0] my_mem__T_2_addr; // @[Memory.scala 34:19]
+  wire [7:0] my_mem__T_1_data; // @[Memory.scala 34:19]
+  wire [7:0] my_mem__T_1_addr; // @[Memory.scala 34:19]
+  wire  my_mem__T_1_mask; // @[Memory.scala 34:19]
+  wire  my_mem__T_1_en; // @[Memory.scala 34:19]
+  assign my_mem__T_2_addr = io_addr;
+  assign my_mem__T_2_data = my_mem[my_mem__T_2_addr]; // @[Memory.scala 34:19]
+  assign my_mem__T_1_data = io_wdata;
+  assign my_mem__T_1_addr = io_addr;
+  assign my_mem__T_1_mask = 1'h1;
+  assign my_mem__T_1_en = io_we;
+  assign io_rdata = my_mem__T_2_data; // @[Memory.scala 44:12]
+`ifdef RANDOMIZE_GARBAGE_ASSIGN
+`define RANDOMIZE
+`endif
+`ifdef RANDOMIZE_INVALID_ASSIGN
+`define RANDOMIZE
+`endif
+`ifdef RANDOMIZE_REG_INIT
+`define RANDOMIZE
+`endif
+`ifdef RANDOMIZE_MEM_INIT
+`define RANDOMIZE
+`endif
+`ifndef RANDOM
+`define RANDOM $random
+`endif
+`ifdef RANDOMIZE_MEM_INIT
+  integer initvar;
+`endif
+`ifndef SYNTHESIS
+initial begin
+  `ifdef RANDOMIZE
+    `ifdef INIT_RANDOM
+      `INIT_RANDOM
+    `endif
+    `ifndef VERILATOR
+      `ifdef RANDOMIZE_DELAY
+        #`RANDOMIZE_DELAY begin end
+      `else
+        #0.002 begin end
+      `endif
+    `endif
+  _RAND_0 = {1{`RANDOM}};
+  `ifdef RANDOMIZE_MEM_INIT
+  for (initvar = 0; initvar < 256; initvar = initvar+1)
+    my_mem[initvar] = _RAND_0[7:0];
+  `endif // RANDOMIZE_MEM_INIT
+  `endif // RANDOMIZE
+end // initial
+`endif // SYNTHESIS
+  always @(posedge clock) begin
+    if(my_mem__T_1_en & my_mem__T_1_mask) begin
+      my_mem[my_mem__T_1_addr] <= my_mem__T_1_data; // @[Memory.scala 34:19]
+    end
+  end
+endmodule
+module Terminal(
+  input        clock,
+  input        reset,
+  input        io_in_en,
+  input  [7:0] io_in_data,
+  input  [3:0] io_SW_IN,
+  output [7:0] io_GPIO,
+  output       io_transmit,
+  output [7:0] io_txdata
+);
+  wire  i_cnt_clock; // @[Terminal.scala 33:22]
+  wire  i_cnt_reset; // @[Terminal.scala 33:22]
+  wire  i_cnt_io_en; // @[Terminal.scala 33:22]
+  wire  i_cnt_io_rst; // @[Terminal.scala 33:22]
+  wire [1:0] i_cnt_io_out; // @[Terminal.scala 33:22]
+  wire  i_mem_clock; // @[Terminal.scala 74:22]
+  wire  i_mem_io_we; // @[Terminal.scala 74:22]
+  wire [7:0] i_mem_io_wdata; // @[Terminal.scala 74:22]
+  wire [7:0] i_mem_io_addr; // @[Terminal.scala 74:22]
+  wire [7:0] i_mem_io_rdata; // @[Terminal.scala 74:22]
+  reg [7:0] r_arg0; // @[Terminal.scala 23:26]
+  reg [31:0] _RAND_0;
+  reg [7:0] r_arg1; // @[Terminal.scala 24:26]
+  reg [31:0] _RAND_1;
+  reg [7:0] r_cmd; // @[Terminal.scala 25:26]
+  reg [31:0] _RAND_2;
+  wire  received_cmd; // @[Terminal.scala 37:33]
+  wire  _T_2; // @[Terminal.scala 45:34]
+  wire  s_cmd; // @[Terminal.scala 45:26]
+  wire  _T_4; // @[Terminal.scala 46:34]
+  wire  m_cmd; // @[Terminal.scala 46:26]
+  wire  _T_6; // @[Terminal.scala 47:34]
+  wire  _T_8; // @[Terminal.scala 48:34]
+  wire  l_cmd; // @[Terminal.scala 48:26]
+  wire  _T_10; // @[Terminal.scala 49:34]
+  wire  o_cmd; // @[Terminal.scala 49:26]
+  reg  r_m_cmd; // @[Terminal.scala 51:24]
+  reg [31:0] _RAND_3;
+  wire [7:0] rdata; // @[Terminal.scala 52:21 Terminal.scala 75:18]
+  wire [7:0] _GEN_3; // @[Terminal.scala 62:28]
+  wire [7:0] _GEN_4; // @[Terminal.scala 60:26]
+  reg [7:0] r_GPIO; // @[Terminal.scala 67:23]
+  reg [31:0] _RAND_4;
+  wire  idle; // @[Terminal.scala 82:24]
+  wire [6:0] _T_17; // @[Terminal.scala 83:24]
+  wire  _T_19; // @[Terminal.scala 84:24]
+  Counter_2 i_cnt ( // @[Terminal.scala 33:22]
+    .clock(i_cnt_clock),
+    .reset(i_cnt_reset),
+    .io_en(i_cnt_io_en),
+    .io_rst(i_cnt_io_rst),
+    .io_out(i_cnt_io_out)
+  );
+  Memory i_mem ( // @[Terminal.scala 74:22]
+    .clock(i_mem_clock),
+    .io_we(i_mem_io_we),
+    .io_wdata(i_mem_io_wdata),
+    .io_addr(i_mem_io_addr),
+    .io_rdata(i_mem_io_rdata)
+  );
+  assign received_cmd = i_cnt_io_out == 2'h3; // @[Terminal.scala 37:33]
+  assign _T_2 = r_cmd == 8'h73; // @[Terminal.scala 45:34]
+  assign s_cmd = received_cmd & _T_2; // @[Terminal.scala 45:26]
+  assign _T_4 = r_cmd == 8'h6d; // @[Terminal.scala 46:34]
+  assign m_cmd = received_cmd & _T_4; // @[Terminal.scala 46:26]
+  assign _T_6 = r_cmd == 8'h77; // @[Terminal.scala 47:34]
+  assign _T_8 = r_cmd == 8'h6c; // @[Terminal.scala 48:34]
+  assign l_cmd = received_cmd & _T_8; // @[Terminal.scala 48:26]
+  assign _T_10 = r_cmd == 8'h6f; // @[Terminal.scala 49:34]
+  assign o_cmd = received_cmd & _T_10; // @[Terminal.scala 49:26]
+  assign rdata = i_mem_io_rdata; // @[Terminal.scala 52:21 Terminal.scala 75:18]
+  assign _GEN_3 = r_m_cmd ? rdata : 8'h0; // @[Terminal.scala 62:28]
+  assign _GEN_4 = s_cmd ? {{4'd0}, io_SW_IN} : _GEN_3; // @[Terminal.scala 60:26]
+  assign idle = i_cnt_io_out == 2'h0; // @[Terminal.scala 82:24]
+  assign _T_17 = r_GPIO[7:1]; // @[Terminal.scala 83:24]
+  assign _T_19 = s_cmd | l_cmd; // @[Terminal.scala 84:24]
+  assign io_GPIO = {_T_17,idle}; // @[Terminal.scala 83:11]
+  assign io_transmit = _T_19 | r_m_cmd; // @[Terminal.scala 84:15]
+  assign io_txdata = l_cmd ? r_arg0 : _GEN_4; // @[Terminal.scala 85:15]
+  assign i_cnt_clock = clock;
+  assign i_cnt_reset = reset;
+  assign i_cnt_io_en = io_in_en; // @[Terminal.scala 35:16]
+  assign i_cnt_io_rst = i_cnt_io_out == 2'h3; // @[Terminal.scala 36:16]
+  assign i_mem_clock = clock;
+  assign i_mem_io_we = received_cmd & _T_6; // @[Terminal.scala 76:18]
+  assign i_mem_io_wdata = r_arg1; // @[Terminal.scala 78:18]
+  assign i_mem_io_addr = r_arg0; // @[Terminal.scala 77:18]
+`ifdef RANDOMIZE_GARBAGE_ASSIGN
+`define RANDOMIZE
+`endif
+`ifdef RANDOMIZE_INVALID_ASSIGN
+`define RANDOMIZE
+`endif
+`ifdef RANDOMIZE_REG_INIT
+`define RANDOMIZE
+`endif
+`ifdef RANDOMIZE_MEM_INIT
+`define RANDOMIZE
+`endif
+`ifndef RANDOM
+`define RANDOM $random
+`endif
+`ifdef RANDOMIZE_MEM_INIT
+  integer initvar;
+`endif
+`ifndef SYNTHESIS
+initial begin
+  `ifdef RANDOMIZE
+    `ifdef INIT_RANDOM
+      `INIT_RANDOM
+    `endif
+    `ifndef VERILATOR
+      `ifdef RANDOMIZE_DELAY
+        #`RANDOMIZE_DELAY begin end
+      `else
+        #0.002 begin end
+      `endif
+    `endif
+  `ifdef RANDOMIZE_REG_INIT
+  _RAND_0 = {1{`RANDOM}};
+  r_arg0 = _RAND_0[7:0];
+  `endif // RANDOMIZE_REG_INIT
+  `ifdef RANDOMIZE_REG_INIT
+  _RAND_1 = {1{`RANDOM}};
+  r_arg1 = _RAND_1[7:0];
+  `endif // RANDOMIZE_REG_INIT
+  `ifdef RANDOMIZE_REG_INIT
+  _RAND_2 = {1{`RANDOM}};
+  r_cmd = _RAND_2[7:0];
+  `endif // RANDOMIZE_REG_INIT
+  `ifdef RANDOMIZE_REG_INIT
+  _RAND_3 = {1{`RANDOM}};
+  r_m_cmd = _RAND_3[0:0];
+  `endif // RANDOMIZE_REG_INIT
+  `ifdef RANDOMIZE_REG_INIT
+  _RAND_4 = {1{`RANDOM}};
+  r_GPIO = _RAND_4[7:0];
+  `endif // RANDOMIZE_REG_INIT
+  `endif // RANDOMIZE
+end // initial
+`endif // SYNTHESIS
+  always @(posedge clock) begin
+    if (reset) begin
+      r_arg0 <= 8'h0;
+    end else if (io_in_en) begin
+      r_arg0 <= r_arg1;
+    end
+    if (reset) begin
+      r_arg1 <= 8'h0;
+    end else if (io_in_en) begin
+      r_arg1 <= io_in_data;
+    end
+    if (reset) begin
+      r_cmd <= 8'h0;
+    end else if (io_in_en) begin
+      r_cmd <= r_arg0;
+    end
+    if (reset) begin
+      r_m_cmd <= 1'h0;
+    end else begin
+      r_m_cmd <= m_cmd;
+    end
+    if (reset) begin
+      r_GPIO <= 8'h0;
+    end else if (o_cmd) begin
+      r_GPIO <= r_arg0;
+    end
+  end
+endmodule
 module UartTX(
   input        clock,
   input        reset,
@@ -518,34 +754,26 @@ module Uart(
   output       io_TD,
   input        io_RD,
   output [7:0] io_GPIO,
-  input        io_SW_IN,
-  output       io_SW_OUT
+  input  [3:0] io_SW_IN
 );
   wire  i_uart_rx_clock; // @[Uart.scala 25:26]
   wire  i_uart_rx_reset; // @[Uart.scala 25:26]
   wire  i_uart_rx_io_RD; // @[Uart.scala 25:26]
   wire [7:0] i_uart_rx_io_recdata; // @[Uart.scala 25:26]
   wire  i_uart_rx_io_received; // @[Uart.scala 25:26]
-  wire  i_cnt_clock; // @[Uart.scala 43:22]
-  wire  i_cnt_reset; // @[Uart.scala 43:22]
-  wire  i_cnt_io_en; // @[Uart.scala 43:22]
-  wire  i_cnt_io_rst; // @[Uart.scala 43:22]
-  wire [1:0] i_cnt_io_out; // @[Uart.scala 43:22]
-  wire  i_uart_tx_clock; // @[Uart.scala 50:26]
-  wire  i_uart_tx_reset; // @[Uart.scala 50:26]
-  wire  i_uart_tx_io_transmit; // @[Uart.scala 50:26]
-  wire [7:0] i_uart_tx_io_txdata; // @[Uart.scala 50:26]
-  wire  i_uart_tx_io_TD; // @[Uart.scala 50:26]
-  reg [7:0] r_arg0; // @[Uart.scala 34:26]
-  reg [31:0] _RAND_0;
-  reg [7:0] r_arg1; // @[Uart.scala 35:26]
-  reg [31:0] _RAND_1;
-  reg [7:0] r_cmd; // @[Uart.scala 36:26]
-  reg [31:0] _RAND_2;
-  wire  received; // @[Uart.scala 27:24 Uart.scala 30:19]
-  wire [7:0] recdata; // @[Uart.scala 26:24 Uart.scala 29:19]
-  wire  received_cmd; // @[Uart.scala 47:33]
-  wire  _T_2; // @[Uart.scala 51:50]
+  wire  i_term_clock; // @[Uart.scala 32:23]
+  wire  i_term_reset; // @[Uart.scala 32:23]
+  wire  i_term_io_in_en; // @[Uart.scala 32:23]
+  wire [7:0] i_term_io_in_data; // @[Uart.scala 32:23]
+  wire [3:0] i_term_io_SW_IN; // @[Uart.scala 32:23]
+  wire [7:0] i_term_io_GPIO; // @[Uart.scala 32:23]
+  wire  i_term_io_transmit; // @[Uart.scala 32:23]
+  wire [7:0] i_term_io_txdata; // @[Uart.scala 32:23]
+  wire  i_uart_tx_clock; // @[Uart.scala 37:26]
+  wire  i_uart_tx_reset; // @[Uart.scala 37:26]
+  wire  i_uart_tx_io_transmit; // @[Uart.scala 37:26]
+  wire [7:0] i_uart_tx_io_txdata; // @[Uart.scala 37:26]
+  wire  i_uart_tx_io_TD; // @[Uart.scala 37:26]
   UartRX i_uart_rx ( // @[Uart.scala 25:26]
     .clock(i_uart_rx_clock),
     .reset(i_uart_rx_reset),
@@ -553,99 +781,35 @@ module Uart(
     .io_recdata(i_uart_rx_io_recdata),
     .io_received(i_uart_rx_io_received)
   );
-  Counter_2 i_cnt ( // @[Uart.scala 43:22]
-    .clock(i_cnt_clock),
-    .reset(i_cnt_reset),
-    .io_en(i_cnt_io_en),
-    .io_rst(i_cnt_io_rst),
-    .io_out(i_cnt_io_out)
+  Terminal i_term ( // @[Uart.scala 32:23]
+    .clock(i_term_clock),
+    .reset(i_term_reset),
+    .io_in_en(i_term_io_in_en),
+    .io_in_data(i_term_io_in_data),
+    .io_SW_IN(i_term_io_SW_IN),
+    .io_GPIO(i_term_io_GPIO),
+    .io_transmit(i_term_io_transmit),
+    .io_txdata(i_term_io_txdata)
   );
-  UartTX i_uart_tx ( // @[Uart.scala 50:26]
+  UartTX i_uart_tx ( // @[Uart.scala 37:26]
     .clock(i_uart_tx_clock),
     .reset(i_uart_tx_reset),
     .io_transmit(i_uart_tx_io_transmit),
     .io_txdata(i_uart_tx_io_txdata),
     .io_TD(i_uart_tx_io_TD)
   );
-  assign received = i_uart_rx_io_received; // @[Uart.scala 27:24 Uart.scala 30:19]
-  assign recdata = i_uart_rx_io_recdata; // @[Uart.scala 26:24 Uart.scala 29:19]
-  assign received_cmd = i_cnt_io_out == 2'h3; // @[Uart.scala 47:33]
-  assign _T_2 = r_cmd == 8'h6c; // @[Uart.scala 51:50]
-  assign io_TD = i_uart_tx_io_TD; // @[Uart.scala 54:13]
-  assign io_GPIO = {{6'd0}, i_cnt_io_out}; // @[Uart.scala 48:11]
-  assign io_SW_OUT = io_SW_IN; // @[Uart.scala 55:13]
+  assign io_TD = i_uart_tx_io_TD; // @[Uart.scala 41:11]
+  assign io_GPIO = i_term_io_GPIO; // @[Uart.scala 42:11]
   assign i_uart_rx_clock = clock;
   assign i_uart_rx_reset = reset;
   assign i_uart_rx_io_RD = io_RD; // @[Uart.scala 28:19]
-  assign i_cnt_clock = clock;
-  assign i_cnt_reset = reset;
-  assign i_cnt_io_en = i_uart_rx_io_received; // @[Uart.scala 45:16]
-  assign i_cnt_io_rst = i_cnt_io_out == 2'h3; // @[Uart.scala 46:16]
+  assign i_term_clock = clock;
+  assign i_term_reset = reset;
+  assign i_term_io_in_en = i_uart_rx_io_received; // @[Uart.scala 33:21]
+  assign i_term_io_in_data = i_uart_rx_io_recdata; // @[Uart.scala 34:21]
+  assign i_term_io_SW_IN = io_SW_IN; // @[Uart.scala 35:21]
   assign i_uart_tx_clock = clock;
   assign i_uart_tx_reset = reset;
-  assign i_uart_tx_io_transmit = received_cmd & _T_2; // @[Uart.scala 51:25]
-  assign i_uart_tx_io_txdata = r_arg0; // @[Uart.scala 52:25]
-`ifdef RANDOMIZE_GARBAGE_ASSIGN
-`define RANDOMIZE
-`endif
-`ifdef RANDOMIZE_INVALID_ASSIGN
-`define RANDOMIZE
-`endif
-`ifdef RANDOMIZE_REG_INIT
-`define RANDOMIZE
-`endif
-`ifdef RANDOMIZE_MEM_INIT
-`define RANDOMIZE
-`endif
-`ifndef RANDOM
-`define RANDOM $random
-`endif
-`ifdef RANDOMIZE_MEM_INIT
-  integer initvar;
-`endif
-`ifndef SYNTHESIS
-initial begin
-  `ifdef RANDOMIZE
-    `ifdef INIT_RANDOM
-      `INIT_RANDOM
-    `endif
-    `ifndef VERILATOR
-      `ifdef RANDOMIZE_DELAY
-        #`RANDOMIZE_DELAY begin end
-      `else
-        #0.002 begin end
-      `endif
-    `endif
-  `ifdef RANDOMIZE_REG_INIT
-  _RAND_0 = {1{`RANDOM}};
-  r_arg0 = _RAND_0[7:0];
-  `endif // RANDOMIZE_REG_INIT
-  `ifdef RANDOMIZE_REG_INIT
-  _RAND_1 = {1{`RANDOM}};
-  r_arg1 = _RAND_1[7:0];
-  `endif // RANDOMIZE_REG_INIT
-  `ifdef RANDOMIZE_REG_INIT
-  _RAND_2 = {1{`RANDOM}};
-  r_cmd = _RAND_2[7:0];
-  `endif // RANDOMIZE_REG_INIT
-  `endif // RANDOMIZE
-end // initial
-`endif // SYNTHESIS
-  always @(posedge clock) begin
-    if (reset) begin
-      r_arg0 <= 8'h0;
-    end else if (received) begin
-      r_arg0 <= r_arg1;
-    end
-    if (reset) begin
-      r_arg1 <= 8'h0;
-    end else if (received) begin
-      r_arg1 <= recdata;
-    end
-    if (reset) begin
-      r_cmd <= 8'h0;
-    end else if (received) begin
-      r_cmd <= r_arg0;
-    end
-  end
+  assign i_uart_tx_io_transmit = i_term_io_transmit; // @[Uart.scala 38:25]
+  assign i_uart_tx_io_txdata = i_term_io_txdata; // @[Uart.scala 39:25]
 endmodule

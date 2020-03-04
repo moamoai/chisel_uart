@@ -68,6 +68,7 @@ class Terminal() extends Module {
   when(o_cmd===1.U){
     r_GPIO := r_arg0
   }
+//  r_GPIO := rdata
 
   // Memory 
   val i_mem  = Module(new Memory)
