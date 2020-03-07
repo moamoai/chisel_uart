@@ -9,16 +9,16 @@ SBT = sbt -mem 4096
 # Generate Verilog code
 
 uart:
-	$(SBT) "runMain simple.UartMain"
+	$(SBT) "runMain uart.UartMain"
 
 uart_lb:
-	$(SBT) "runMain simple.Uart_LBMain"
+	$(SBT) "runMain uart.Uart_LBMain"
 
 
 uartlb-test:
-	$(SBT) "test:runMain simple.Uart_LBTester --backend-name verilator"
+	$(SBT) "test:runMain uart.Uart_LBTester --backend-name verilator"
 uart-test:
-	$(SBT) "test:runMain simple.UartTester --backend-name verilator"
+	$(SBT) "test:runMain uart.UartTester --backend-name verilator"
 
 GTKWAVE = /Applications/gtkwave.app/Contents/Resources/bin/gtkwave
 view:
