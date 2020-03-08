@@ -20,7 +20,7 @@ object OBJ_TEST {
 // abstract class absUartTester[+T <: chisel3.MultiIOModule](dut:T) extends PeekPokeTester(dut){
 // }
 
-class UartTester(dut: Uart) extends PeekPokeTester(dut) {
+class UartTester(dut: UartTop) extends PeekPokeTester(dut) {
   // val TIME_BAUD = 125*1000*1000/9600
   // val TIME_BAUD = 125*1000*1000/115200
   val TIME_BAUD = OBJ_TEST.TIME_BAUD
@@ -157,7 +157,7 @@ object UartTester extends App {
 
   iotesters.Driver.execute(Array[String]("--generate-vcd-output", "on",
                         "--fint-write-vcd", "--wave-form-file-name", "test_run_dir/Uart.vcd"),
-                                          () => new Uart(OBJ_TEST.TIME_BAUD.U)) {
+                                          () => new UartTop(OBJ_TEST.TIME_BAUD.U)) {
     c => new UartTester(c)
   }
 }

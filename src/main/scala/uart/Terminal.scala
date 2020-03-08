@@ -10,15 +10,23 @@ import chisel3._
 import chisel3.util._
 import chisel3.util.Enum
 
-class Terminal() extends Module {
+class Terminal(DATA_W:Int=8, ADDR_W:Int=8) extends Module {
   val io = IO(new Bundle {
+    // From/To UartRx,Tx
     val in_en    = Input (UInt(1.W))
     val in_data  = Input (UInt(8.W))
-    val MONITOR  = Input (Vec(4, UInt(8.W)))
-    val GPIO     = Output(Vec(4, UInt(8.W)))
     val transmit = Output(UInt(1.W))
     val txdata   = Output(UInt(8.W))
     val idle     = Output(UInt(1.W))
+
+    // GPIO/Monitor
+    val MONITOR  = Input (Vec(4, UInt(8.W)))
+    val GPIO     = Output(Vec(4, UInt(8.W)))
+    // Memory IF
+    val we    = Output(UInt(1.W))
+    val addr  = Output(UInt(ADDR_W.W))
+    val wdata = Output(UInt(DATA_W.W))
+    val rdata = Input (UInt(DATA_W.W))
   })
 
   val r_arg0    = RegInit(0.U(8.W))
@@ -73,11 +81,10 @@ class Terminal() extends Module {
   io.GPIO := r_GPIO
 
   // Memory 
-  val i_mem  = Module(new Memory)
-  rdata          := i_mem.io.rdata
-  i_mem.io.we    := w_cmd
-  i_mem.io.addr  := r_arg0
-  i_mem.io.wdata := r_arg1
+  rdata    := io.rdata
+  io.we    := w_cmd
+  io.addr  := r_arg0
+  io.wdata := r_arg1
 
   io.idle := (i_cnt.io.out===0.U)
 
