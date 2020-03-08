@@ -106,6 +106,24 @@ class UartTester(dut: Uart) extends PeekPokeTester(dut) {
     println("#[NG] Error rdata=" + rdata.toString)
   }
 
+  // GPIO
+  var o_CHAR    = 0x6F
+  for (i <- 0 until 4) {
+    send_uart(o_CHAR)
+    send_uart(i) 
+    send_uart(0xA0 + i)
+  }
+
+  for (i <- 1 until 4) {
+    send_uart(S_CHAR)
+    send_uart(i) 
+    send_uart(0x00, 1)
+    rdata = receive_data()
+    if(rdata != (0xA0 + i)){
+      println("#[NG] Error GPIO rdata=" + rdata.toString)
+    }
+  }
+
 //  TEST_DATA = 0x5A
 //  send_uart(TEST_DATA)
 //  receive_data()

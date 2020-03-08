@@ -14,10 +14,11 @@ class Terminal() extends Module {
   val io = IO(new Bundle {
     val in_en    = Input (UInt(1.W))
     val in_data  = Input (UInt(8.W))
-    val SW_IN    = Input (UInt(4.W))
-    val GPIO     = Output(UInt(8.W))
+    val MONITOR  = Input (Vec(4, UInt(8.W)))
+    val GPIO     = Output(Vec(4, UInt(8.W)))
     val transmit = Output(UInt(1.W))
     val txdata   = Output(UInt(8.W))
+    val idle     = Output(UInt(1.W))
   })
 
   val r_arg0    = RegInit(0.U(8.W))
@@ -54,21 +55,22 @@ class Terminal() extends Module {
 
   // TX controll
   val txdata = Wire(UInt(8.W))
+  val r_GPIO = RegInit(VecInit(Seq.fill(4)(0.U(8.W))))
   txdata := 0.U
   when(l_cmd===1.U){
      txdata := r_arg0
   }.elsewhen(s_cmd===1.U){
-     txdata := io.SW_IN
+    txdata := io.MONITOR(r_arg0)
   }.elsewhen(r_m_cmd===1.U){
      txdata := rdata
   }
 
   // GPIO Controll
-  val r_GPIO = RegInit(0.U(8.W))
+  // val r_GPIO = RegInit(0.U(8.W))
   when(o_cmd===1.U){
-    r_GPIO := r_arg0
+    r_GPIO(r_arg0) := r_arg1
   }
-//  r_GPIO := rdata
+  io.GPIO := r_GPIO
 
   // Memory 
   val i_mem  = Module(new Memory)
@@ -76,11 +78,9 @@ class Terminal() extends Module {
   i_mem.io.we    := w_cmd
   i_mem.io.addr  := r_arg0
   i_mem.io.wdata := r_arg1
-  
 
-  val idle = Wire(UInt(1.W))
-  idle := (i_cnt.io.out===0.U)
-  io.GPIO := Cat(r_GPIO(7,1), idle)
+  io.idle := (i_cnt.io.out===0.U)
+
   io.transmit := s_cmd | l_cmd | r_m_cmd
   io.txdata   := txdata
 }

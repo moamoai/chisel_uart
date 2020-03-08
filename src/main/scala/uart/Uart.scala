@@ -32,14 +32,21 @@ class Uart(TIME_BAUD:UInt = 1085.U(16.W)) extends Module {
   val i_term  = Module(new Terminal)
   i_term.io.in_en   := received
   i_term.io.in_data := recdata
-  i_term.io.SW_IN   := io.SW_IN
+
+  // i_term.io.MONITOR := Cat(io.SW_IN, i_term.io.GPIO(1,3))
+  i_term.io.MONITOR(0) := io.SW_IN
+  i_term.io.MONITOR(1) := i_term.io.GPIO(1)
+  i_term.io.MONITOR(2) := i_term.io.GPIO(2)
+  i_term.io.MONITOR(3) := i_term.io.GPIO(3)
 
   val i_uart_tx  = Module(new UartTX(TIME_BAUD))
   i_uart_tx.io.transmit := i_term.io.transmit
   i_uart_tx.io.txdata   := i_term.io.txdata
 
   io.TD   := i_uart_tx.io.TD
-  io.GPIO := i_term.io.GPIO
+
+  io.GPIO := Cat(i_term.io.GPIO(0)(7,1), i_term.io.idle)
+  // io.GPIO := i_term.io.GPIO
 //  io.SW_OUT := io.SW_IN
 }
 
