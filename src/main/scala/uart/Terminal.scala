@@ -56,13 +56,13 @@ class Terminal(DATA_W:Int=8, ADDR_W:Int=8) extends Module {
   }
 
   // Counter Controll
-  val i_cnt  = Module(new Counter(2))
+  val i_cnt  = Module(new Counter(3))
   val received_cmd = Wire(UInt(1.W))
   w_cnt_out    := i_cnt.io.out
   i_cnt.io.en  := io.in_en
   i_cnt.io.rst := received_cmd
-  received_cmd := (i_cnt.io.out === 3.U)
-
+  received_cmd :=  ((r_cmd !=0x61.U) && (w_cnt_out === 3.U)) | 
+                   ((r_cmd===0x61.U) && (w_cnt_out === 6.U))
   // cmd decorder
   val s_cmd = Wire(UInt(1.W))
   val m_cmd = Wire(UInt(1.W))
@@ -93,7 +93,17 @@ class Terminal(DATA_W:Int=8, ADDR_W:Int=8) extends Module {
   }.elsewhen(s_cmd===1.U){
     txdata := io.MONITOR(r_arg0)
   }.elsewhen(r_m_cmd===1.U){
-     txdata := rdata
+  //   txdata := rdata
+//    txdata := rdata_32b(8.U*(r_arg1+1.U)-1.U,8.U*r_arg1)
+    when(r_arg1===0.U){ // addr[1:0]
+      txdata := rdata_32b(7,0)
+    }.elsewhen(r_arg1===1.U){
+      txdata := rdata_32b(15,8)
+    }.elsewhen(r_arg1===2.U){
+      txdata := rdata_32b(23,16)
+    }.elsewhen(r_arg1===3.U){
+      txdata := rdata_32b(31,24)
+    }
   }
 
   // GPIO Controll
@@ -107,7 +117,7 @@ class Terminal(DATA_W:Int=8, ADDR_W:Int=8) extends Module {
   wdata_32b    := Cat(r_arg4, r_arg3, r_arg2, r_arg1)
   // Memory 
   rdata    := io.rdata
-  io.we    := w_cmd
+  io.we    := w_cmd | a_cmd
   io.addr  := r_arg0
   io.wdata := wdata_32b(DATA_W-1, 0) // r_arg1
 
