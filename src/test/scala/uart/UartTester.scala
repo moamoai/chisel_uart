@@ -17,6 +17,9 @@ object OBJ_TEST {
   val TIME_BAUD  = 16
 }
 
+// abstract class absUartTester[+T <: chisel3.MultiIOModule](dut:T) extends PeekPokeTester(dut){
+// }
+
 class UartTester(dut: Uart) extends PeekPokeTester(dut) {
   // val TIME_BAUD = 125*1000*1000/9600
   // val TIME_BAUD = 125*1000*1000/115200

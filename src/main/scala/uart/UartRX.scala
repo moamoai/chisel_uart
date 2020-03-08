@@ -19,7 +19,7 @@ class UartRX(TIME_BAUD: UInt=1085.U(16.W)) extends Module {
   })
 
   var RD = io.RD
-  var TIME_START    = (TIME_BAUD + (TIME_BAUD>>1))
+  var TIME_START    = (TIME_BAUD + (TIME_BAUD>>1)) // * 1.5  + (TIME_BAUD>>2)) // * 1.75
   var TIME_UART_MAX = 10.U
   val eIdle :: eStart :: eReceiving :: Nil = Enum(3)
   val state = RegInit(eIdle)
@@ -31,8 +31,8 @@ class UartRX(TIME_BAUD: UInt=1085.U(16.W)) extends Module {
   // Counters
   val counter_out = Wire(UInt(16.W))
   val i_counter     = Module(new Counter(16))
-  incr_uart_cnt := ((state===eStart    ) && (counter_out === TIME_START)) |
-                   ((state===eReceiving) && (counter_out === TIME_BAUD ))
+  incr_uart_cnt := ((state===eStart    ) && (counter_out === (TIME_START -1.U))) |
+                   ((state===eReceiving) && (counter_out === (TIME_BAUD  -1.U)))
   counter_out := i_counter.io.out
   i_counter.io.rst := incr_uart_cnt | (state === eIdle)
   i_counter.io.en  := (state != eIdle)
@@ -51,12 +51,12 @@ class UartRX(TIME_BAUD: UInt=1085.U(16.W)) extends Module {
       }
     }
     is (eStart){
-      when(counter_out === TIME_START){ // TIME_BAUD * 1.5
+      when(counter_out === (TIME_START-1.U)){
         state := eReceiving
       }
     }
     is (eReceiving){
-      when(uart_cnt_out === TIME_UART_MAX){ // TIME_BAUD * 1.5
+      when(uart_cnt_out === TIME_UART_MAX){
         state := eIdle
         clr_uart_cnt := 1.U
       }
