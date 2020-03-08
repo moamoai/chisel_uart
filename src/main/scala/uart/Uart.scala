@@ -36,7 +36,7 @@ class Uart(TIME_BAUD:UInt = 1085.U(16.W), DATA_W:Int=8, ADDR_W:Int=8) extends Mo
   recdata         := i_uart_rx.io.recdata
   received        := i_uart_rx.io.received
 
-  val i_term  = Module(new Terminal)
+  val i_term  = Module(new Terminal(DATA_W, ADDR_W))
   i_term.io.in_en   := received
   i_term.io.in_data := recdata
   i_term.io.MONITOR := io.MONITOR
